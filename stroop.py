@@ -35,12 +35,15 @@ while True:
     instruction.draw()
     word_stim.draw()
     win.flip()
-    core.wait(1.0)
+
+    # task 3: wait for response
+    response_keys = event.waitKeys(keyList=['r','o','y','g','b', 'q'])
+
     placeholder.draw()
     instruction.draw()    
     win.flip()
     core.wait(.15)
 
-    if event.getKeys(['q']):
+    if 'q' in response_keys:
         win.close()
         core.quit()
