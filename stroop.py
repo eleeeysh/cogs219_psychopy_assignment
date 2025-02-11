@@ -13,13 +13,18 @@ instruction = visual.TextStim(win,text="Press the first letter of the ink color"
 # task 1: create fixation
 fixation = visual.TextStim(win, text="+", height=15, color="black")
 
+# task 2: set auto-draw
+instruction.setAutoDraw(True)
+
 while True:
     # task 1: show fixation
+    placeholder.draw()
     fixation.draw()
     win.flip()
     core.wait(0.5)
 
     # task 1: remove fixation stimuli
+    placeholder.draw()
     win.flip()
     core.wait(0.5)
 
