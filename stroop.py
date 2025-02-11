@@ -22,6 +22,11 @@ RTs = []
 
 max_rt = 2
 
+# task 7: create incongruent
+def make_incongruent(stim):
+    sampled = random.choice([c for c in stimuli if c != stim])
+    return sampled
+
 while True:
     # task 1: show fixation
     placeholder.draw()
@@ -33,10 +38,11 @@ while True:
     placeholder.draw()
     win.flip()
     core.wait(0.5)
-
     cur_stim = random.choice(stimuli)
     word_stim.setText(cur_stim)
-    word_stim.setColor(cur_stim)
+    # task 7: set incongruent color
+    cur_color = make_incongruent(cur_stim)
+    word_stim.setColor(cur_color)
     placeholder.draw()
     word_stim.draw()
     win.flip()
