@@ -16,6 +16,10 @@ fixation = visual.TextStim(win, text="+", height=15, color="black")
 # task 2: set auto-draw
 instruction.setAutoDraw(True)
 
+# task 4: record RT
+timer = core.Clock()
+RTs = []
+
 while True:
     # task 1: show fixation
     placeholder.draw()
@@ -37,7 +41,13 @@ while True:
     win.flip()
 
     # task 3: wait for response
+    # task 4: record RT
+    response_start_time = timer.getTime()
     response_keys = event.waitKeys(keyList=['r','o','y','g','b', 'q'])
+    response_end_time = timer.getTime()
+    response_rt = response_end_time - response_start_time
+    RTs.append(response_rt)
+
 
     placeholder.draw()
     instruction.draw()    
