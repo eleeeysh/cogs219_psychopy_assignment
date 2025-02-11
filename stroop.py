@@ -20,6 +20,8 @@ instruction.setAutoDraw(True)
 timer = core.Clock()
 RTs = []
 
+max_rt = 2
+
 while True:
     # task 1: show fixation
     placeholder.draw()
@@ -42,17 +44,26 @@ while True:
     # task 3: wait for response
     # task 4: record RT
     response_start_time = timer.getTime()
-    response_keys = event.waitKeys(keyList=['r','o','y','g','b', 'q'])
+    response_keys = event.waitKeys(maxWait=max_rt, keyList=['r','o','y','g','b', 'q'])
     response_end_time = timer.getTime()
     response_rt = response_end_time - response_start_time
     RTs.append(response_rt)
 
-    if 'q' in response_keys:
+    if not response_keys:
+        # task 6: cutoff too long RT
+        placeholder.draw()
+        word_stim.setText("Too slow")
+        word_stim.setColor("black")
+        word_stim.draw()
+        win.flip()
+        core.wait(1)
+    
+    elif 'q' in response_keys:
         win.close()
         core.quit()
 
     # task 5: feedback
-    if response_keys[0] != cur_stim[0]:
+    elif response_keys[0] != cur_stim[0]:
         placeholder.draw()
         word_stim.setText("incorrect")
         word_stim.setColor("black")
