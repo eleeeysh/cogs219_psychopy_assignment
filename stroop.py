@@ -36,7 +36,6 @@ while True:
     word_stim.setText(cur_stim)
     word_stim.setColor(cur_stim)
     placeholder.draw()
-    instruction.draw()
     word_stim.draw()
     win.flip()
 
@@ -48,12 +47,21 @@ while True:
     response_rt = response_end_time - response_start_time
     RTs.append(response_rt)
 
+    if 'q' in response_keys:
+        win.close()
+        core.quit()
+
+    # task 5: feedback
+    if response_keys[0] != cur_stim[0]:
+        placeholder.draw()
+        word_stim.setText("incorrect")
+        word_stim.setColor("black")
+        word_stim.draw()
+        win.flip()
+        core.wait(1)
+
 
     placeholder.draw()
     instruction.draw()    
     win.flip()
     core.wait(.15)
-
-    if 'q' in response_keys:
-        win.close()
-        core.quit()
