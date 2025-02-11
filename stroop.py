@@ -9,7 +9,20 @@ win = visual.Window([800,600],color="gray", units='pix',checkTiming=False)
 placeholder = visual.Rect(win,width=180,height=80, fillColor="lightgray",lineColor="black", lineWidth=6,pos=[0,0])
 word_stim = visual.TextStim(win,text="", height=40, color="black",pos=[0,0])
 instruction = visual.TextStim(win,text="Press the first letter of the ink color", height=20, color="black",pos=[0,-200])
+
+# task 1: create fixation
+fixation = visual.TextStim(win, text="+", height=15, color="black")
+
 while True:
+    # task 1: show fixation
+    fixation.draw()
+    win.flip()
+    core.wait(0.5)
+
+    # task 1: remove fixation stimuli
+    win.flip()
+    core.wait(0.5)
+
     cur_stim = random.choice(stimuli)
     word_stim.setText(cur_stim)
     word_stim.setColor(cur_stim)
