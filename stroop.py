@@ -9,6 +9,7 @@ win = visual.Window([800,600],color="gray", units='pix',checkTiming=False)
 placeholder = visual.Rect(win,width=180,height=80, fillColor="lightgray",lineColor="black", lineWidth=6,pos=[0,0])
 word_stim = visual.TextStim(win,text="", height=40, color="black",pos=[0,0])
 instruction = visual.TextStim(win,text="Press the first letter of the ink color", height=20, color="black",pos=[0,-200])
+feedback = visual.TextStim(win,text="Too Slow", height=40, color="black",pos=[0,0])
 
 # task 1: create fixation
 fixation = visual.TextStim(win, text="+", height=15, color="black")
@@ -45,6 +46,7 @@ def generate_trials(subj_code, prop_incongruent, num_trials=100):
 
     n_congruent = int(num_trials * (1 - prop_incongruent/100))
     n_incongruent = num_trials - n_congruent
+    print(n_congruent, n_incongruent)
 
     configs = [subj_code, prop_incongruent]
     congruency = ['congruent',] * n_congruent + ['incongruent'] * n_incongruent
@@ -52,23 +54,26 @@ def generate_trials(subj_code, prop_incongruent, num_trials=100):
         ['upside_down',] * (n_congruent - n_congruent // 2) +\
         ['upright',] * (n_incongruent // 2) +\
         ['upside_down',] * (n_incongruent - n_incongruent // 2)
-    all_stimuli = random.sample(stimuli, num_trials)
+    all_stimuli = random.choices(stimuli, k=num_trials)
 
     # generate color
-    all_colors = all_stimuli[:n_congruent]
+    all_colors = all_stimuli[:n_congruent][:]
     for s in all_stimuli[n_congruent:]:
         all_colors.append(make_incongruent(s))
 
     # generate congruent trials
     separator = ","
-    des_name = f"trials/{subj_code}_trials.csv"
+    des_folder = 'trials'
+    os.makedirs(des_folder, exist_ok=True)
+    des_name = os.path.join(des_folder, f"{subj_code}.csv")
+    
     with open(des_name, "w") as f:
         # write header
         header = separator.join(["subj_code","prop_incongruent", 'word','color','congruency','orientation'])
         f.write(header + '\n')
 
         trials = []
-        for i in range(n_congruent):
+        for i in range(num_trials):
             new_trial = configs[:] + [
                 all_stimuli[i],
                 all_colors[i],
@@ -85,16 +90,15 @@ def generate_trials(subj_code, prop_incongruent, num_trials=100):
 
 def read_trials(trial_file):
     separator = ","
+    trials_list = []
     # read header
     with open(trial_file, 'r') as f:
         col_names = f.readline().rstrip().split(separator)
-    # read trials
-    trials_list = []
-    with open(trial_file, 'r') as f:
         for line in f:
             cur_trial = line.rstrip().split(separator)
             trial_dict = dict(zip(col_names, cur_trial))
             trials_list.append(trial_dict)
+    print(trials_list[0])
     return trials_list
 
 # task 10
@@ -102,12 +106,12 @@ def get_runtime_vars():
     #Get run time variables, see http://www.psychopy.org/api/gui.html for explanation
     vars_to_get = {
         'subj_code': 'stroop_101', 
-        'prop_incongruent': ['Choose', '25', '50', '75'],
+        'prop_incongruent': ['25', '50', '75'],
     }
     vars_order = ['subj_code', 'prop_incongruent']
     infoDlg = gui.DlgFromDict(
         dictionary=vars_to_get, title='stroop', order=vars_order)
-    return infoDlg.ok, vars_to_get
+    return infoDlg.OK, vars_to_get
 
 
 # task 10: get config input
@@ -127,11 +131,13 @@ for trial in trials_generated:
     placeholder.draw()
     win.flip()
     core.wait(0.5)
-    cur_stim = random.choice(stimuli)
+    # cur_stim = random.choice(stimuli)
     word_stim.setText(trial['word'])
     # task 7: set incongruent color
     word_stim.setColor(trial['color'])
-    word_stim.setOri(0 if trial['orientation'] == 'upright' else 180)
+    # task 11: rotate it
+    to_rotate = trial['orientation'] == 'upright'
+    word_stim.setOri(0 if to_rotate else 180)
     
     placeholder.draw()
     word_stim.draw()
@@ -148,9 +154,8 @@ for trial in trials_generated:
     if not response_keys:
         # task 6: cutoff too long RT
         placeholder.draw()
-        word_stim.setText("Too slow")
-        word_stim.setColor("black")
-        word_stim.draw()
+        feedback.setText("Too slow")
+        feedback.draw()
         win.flip()
         core.wait(1)
     
@@ -159,11 +164,10 @@ for trial in trials_generated:
         core.quit()
 
     # task 5: feedback
-    elif response_keys[0] != cur_stim[0]:
+    elif response_keys[0] != trial['color'][0]:
         placeholder.draw()
-        word_stim.setText("incorrect")
-        word_stim.setColor("black")
-        word_stim.draw()
+        feedback.setText("incorrect")
+        feedback.draw()
         win.flip()
         core.wait(1)
 
